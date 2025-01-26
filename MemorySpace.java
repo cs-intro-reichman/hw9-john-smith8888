@@ -58,7 +58,23 @@ public class MemorySpace {
 	 * @return the base address of the allocated block, or -1 if unable to allocate
 	 */
 	public int malloc(int length) {		
-		//// Replace the following statement with your code
+		ListIterator it = freeList.iterator();
+		while (it.hasNext()) {
+			if (it.current.block.length>=length) {
+				MemoryBlock mb = new MemoryBlock(it.current.block.baseAddress, length);
+				allocatedList.addLast(mb);
+
+				if (it.current.block.length==length) {
+					freeList.remove(it.current);
+				}
+				else{
+					it.current.block.length = it.current.block.length-length;
+					it.current.block.baseAddress = it.current.block.baseAddress+length;
+				}
+				return mb.baseAddress;
+			}
+			it.next();
+		}
 		return -1;
 	}
 
@@ -71,7 +87,22 @@ public class MemorySpace {
 	 *            the starting address of the block to freeList
 	 */
 	public void free(int address) {
-		//// Write your code here
+		if (allocatedList.getSize()==0) {
+			allocatedList.remove(-1);
+		}
+		ListIterator it = allocatedList.iterator();
+		while (it.hasNext()) {
+			if (it.current.block.baseAddress==address) {
+				MemoryBlock mb = it.current.block;
+				allocatedList.remove(it.current);
+				freeList.addLast(mb);
+
+				return;
+			}
+
+			it.next();
+		}
+		
 	}
 	
 	/**
@@ -88,7 +119,50 @@ public class MemorySpace {
 	 * In this implementation Malloc does not call defrag.
 	 */
 	public void defrag() {
-		/// TODO: Implement defrag test
-		//// Write your code here
+		freeList = freeList.sortList();
+		
+		Node current = freeList.getFirst();
+		
+		while (current!=null && current.next!=null) {
+			MemoryBlock currBlock = current.block;
+			MemoryBlock next =  current.next.block;
+			if (currBlock.baseAddress+currBlock.length == next.baseAddress) {
+				currBlock.length+=next.length;
+				freeList.remove(current.next);
+			}
+			else {current = current.next;}
+		}
+		
+
+
+			
+		// LinkedList blocks = new LinkedList();
+		// while (it1.hasNext()) {
+		// 	ListIterator it2 = freeList.iterator();
+		// 	while (it2.hasNext()) {
+		// 		if (it1.current.block.baseAddress + it1.current.block.length ==
+		// 		it2.current.block.baseAddress) {
+		// 			blocks.addFirst(it1.current.block);
+		// 			// MemoryBlock newMemoryBlock = new MemoryBlock(it1.current.block.baseAddress, 
+		// 			// it1.current.block.length + it2.current.block.length);
+		// 			// it1.current.block = newMemoryBlock;
+		// 			// freeList.remove(it2.current.block);
+		// 		}
+		// 		it2.next();
+		// 	}
+		// 	it1.next();
+		// }
+	// 	ListIterator it3 = blocks.iterator();
+	// 	boolean merge = true;
+	// 	while (it3.hasNext()&&merge) {
+	// 		merge = blockMerge(it3.current.block, it3.next());
+	// 	}
+	// }
+	// public boolean blockMerge(MemoryBlock block1, MemoryBlock block2) {
+	// 	MemoryBlock newMemoryBlock = new MemoryBlock(block1.baseAddress, 
+	// 				block1.length + block2.length);
+	// 				block1 = newMemoryBlock;
+	// 				// freeList.remove(it2.current.block);
+	// 	return true;
 	}
 }
