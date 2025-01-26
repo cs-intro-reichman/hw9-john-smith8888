@@ -124,15 +124,15 @@ public class LinkedList {
 	 */
 	public void addLast(MemoryBlock block) {
 		Node tmp = new Node(block);
-		if (size==0) {
-			first = tmp;
-			last = tmp;
+		if (this.size==0) {
+			this.first = tmp;
+			this.last = tmp;
 		}
 		else{
-			last.next = tmp;
-			last = tmp;
+			this.last.next = tmp;
+			this.last = tmp;
 		}
-		size++;
+		this.size++;
 		return;
 	}
 	
@@ -351,20 +351,38 @@ public class LinkedList {
 
 		return sorted;
 	}
-	public void addInOrder(MemoryBlock data){
+	public void addInOrder(MemoryBlock data) {
+		Node newNode = new Node(data);
+	
+		// Case 1: Insert at the head of the list
 		if (this.first == null || this.first.block.baseAddress > data.baseAddress) {
-			this.addFirst(data);
-			return;
+			newNode.next = first;
+			first = newNode;
+			if (last == null) {
+				last = newNode; // Handle single-node case
 			}
-			Node node = new Node(data);
-			Node prev = null;
-			Node current = this.first;
-			while (current != null && current.block.baseAddress < data.baseAddress) {
+			size++;
+			return;
+		}
+	
+		// Case 2: Insert in the middle or end of the list
+		Node prev = null;
+		Node current = this.first;
+	
+		while (current != null && current.block.baseAddress < data.baseAddress) {
 			prev = current;
 			current = current.next;
-			}
-			node.next = current;
-			prev.next = node;
-			this.size++;
+		}
+	
+		newNode.next = current;
+		prev.next = newNode;
+	
+		// If inserted at the end, update the `last` pointer
+		if (current == null) {
+			last = newNode;
+		}
+	
+		size++;
 	}
+	
 }
